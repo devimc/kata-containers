@@ -1,0 +1,25 @@
+name: Release Kata 2.x in snapcraft store
+on:
+  push:
+    tags:
+      - '2.*'
+jobs:
+  release-snap:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Snapcraft
+        uses: samuelmeuli/action-snapcraft@v1
+        with:
+          snapcraft_token: ${{ secrets.snapcraft_token }}
+
+      - name: Build snap
+        run: |
+          snapcraft -d snap --destructive-mode
+
+      - name: Upload snap
+        run: |
+          snap_version="$(echo ${GITHUB_REF} | cut -d/ -f3)"
+          snapcraft upload --release=edge kata-containers_${snap_version}_amd64.snap
